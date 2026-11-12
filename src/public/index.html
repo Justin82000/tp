@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test CRUD - MongoDB & TypeScript</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f9f9f9; }
+    h1 { color: #333; }
+    .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+    button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .btn-add { background: #28a745; color: white; }
+    .btn-edit { background: #ffc107; color: #333; }
+    .btn-delete { background: #dc3545; color: white; }
+    ul { list-style: none; padding: 0; }
+    li { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .actions { display: flex; gap: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>Gestion des données (CRUD)</h1>
+
+  <!-- Formulaire d'ajout (POST) -->
+  <form id="addForm" class="form-group">
+    <input type="text" id="dataInput" placeholder="Écrire une nouvelle donnée..." required />
+    <button type="submit" class="btn-add">Ajouter</button>
+  </form>
+
+  <!-- Liste des éléments (GET, PUT, DELETE) -->
+  <ul id="dataList"></ul>
+
+  <script>
+    const addForm = document.getElementById("addForm");
+    const dataInput = document.getElementById("dataInput");
+    const dataList = document.getElementById("dataList");
+
+    // 1. READ : Charger et afficher la liste (GET /list)
+    async function loadData() {
+      const response = await fetch("/list");
+      const result = await response.json();
+
+      dataList.innerHTML = "";
+      result.list.forEach((item) => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = item.content;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        // Bouton Modifier
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Modifier";
+        editBtn.className = "btn-edit";
+        editBtn.onclick = () => updateData(item._id, item.content);
+
+        // Bouton Supprimer
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Supprimer";
+        deleteBtn.className = "btn-delete";
+        deleteBtn.onclick = () => deleteData(item._id);
+
+        actions.append(editBtn, deleteBtn);
+        li.append(span, actions);
+        dataList.appendChild(li);
+      });
+    }
+
+    // 2. CREATE : Ajouter une donnée (POST /addData)
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const value = dataInput.value.trim();
+      if (!value) return;
+
+      await fetch("/addData", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: value }),
+      });
+
+      dataInput.value = "";
+      loadData();
+    });
+
+    // 3. UPDATE : Modifier une donnée (PUT /updateData/:id)
+    async function updateData(id, currentContent) {
+      const newContent = prompt("Modifier le contenu :", currentContent);
+      if (newContent === null || newContent.trim() === "") return;
+
+      await fetch(`/updateData/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: newContent.trim() }),
+      });
+
+      loadData();
+    }
+
+    // 4. DELETE : Supprimer une donnée (DELETE /deleteData/:id)
+    async function deleteData(id) {
+      if (!confirm("Voulez-vous vraiment supprimer cet élément ?")) return;
+
+      await fetch(`/deleteData/${id}`, {
+        method: "DELETE",
+      });
+
+      loadData();
+    }
+
+    // Chargement initial au démarrage de la page
+    loadData();
+  </script>
+
+</body>
+</html>
