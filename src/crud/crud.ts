@@ -7,9 +7,9 @@ export const addData = async (req: Request, res: Response): Promise<void> => {
   try {
     const collection = getCollection();
     const result = await collection.insertOne({ content: req.body.data });
-    res.json({ message: "Data added successfully", id: result.insertedId });
+    res.json({ message: "Donnée ajoutée avec succès", id: result.insertedId });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Erreur du serveur" });
   }
 };
 
@@ -20,7 +20,7 @@ export const listData = async (req: Request, res: Response): Promise<void> => {
     const list = await collection.find().toArray();
     res.json({ list });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Erreur du serveur" });
   }
 };
 
@@ -29,7 +29,7 @@ export const updateData = async (req: Request, res: Response): Promise<void> => 
   try {
     const { id } = req.params;
     if (typeof id !== "string" || !ObjectId.isValid(id)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "format de l'ID invalide" });
       return;
     }
 
@@ -40,13 +40,13 @@ export const updateData = async (req: Request, res: Response): Promise<void> => 
     );
 
     if (result.matchedCount === 0) {
-      res.status(404).json({ error: "Document not found" });
+      res.status(404).json({ error: "Document pas trouvé" });
       return;
     }
 
-    res.json({ message: "Data updated successfully" });
+    res.json({ message: "Donnée mise à jour avec succès" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Erreur du serveur" });
   }
 };
 
@@ -55,7 +55,7 @@ export const deleteData = async (req: Request, res: Response): Promise<void> => 
   try {
     const { id } = req.params;
     if (typeof id !== "string" || !ObjectId.isValid(id)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "format de l'ID invalide" });
       return;
     }
 
@@ -63,12 +63,12 @@ export const deleteData = async (req: Request, res: Response): Promise<void> => 
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      res.status(404).json({ error: "Document not found" });
+      res.status(404).json({ error: "Document pas trouvé" });
       return;
     }
 
-    res.json({ message: "Data deleted successfully" });
+    res.json({ message: "Donnée supprimée" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Erreur du serveur" });
   }
 };

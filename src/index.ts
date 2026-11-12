@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import { connectDB } from "./config/server";
 import dataRoutes from "./routes/route";
 
@@ -11,6 +12,10 @@ app.use(express.static("src/public"));
 
 // Routes
 app.use("/", dataRoutes);
+
+app.get("/list", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "list.html"));
+});
 
 // Démarrage du serveur après connexion à la DB
 connectDB()

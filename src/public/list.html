@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liste complète des données</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #f9f9f9; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    a { text-decoration: none; background: #007bff; color: white; padding: 8px 14px; border-radius: 5px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #333; color: white; }
+    code { background: #f0f0f0; padding: 3px 6px; border-radius: 4px; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Toutes les données</h1>
+    <a href="/">← Retour à la gestion</a>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID MongoDB</th>
+        <th>Contenu</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr><td colspan="2">Chargement...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchAllData() {
+      const response = await fetch("/api/list");
+      const result = await response.json();
+      const tableBody = document.getElementById("tableBody");
+
+      tableBody.innerHTML = "";
+
+      if (result.list.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="2">Aucune donnée enregistrée.</td></tr>';
+        return;
+      }
+
+      result.list.forEach((item) => {
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td");
+        const code = document.createElement("code");
+        code.textContent = item._id;
+        tdId.appendChild(code);
+
+        const tdContent = document.createElement("td");
+        tdContent.textContent = item.content;
+
+        tr.append(tdId, tdContent);
+        tableBody.appendChild(tr);
+      });
+    }
+
+    fetchAllData();
+  </script>
+
+</body>
+</html>
